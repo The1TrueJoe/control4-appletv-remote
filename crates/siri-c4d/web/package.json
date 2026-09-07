@@ -1,0 +1,16 @@
+{
+  "name": "siri-c4d-web",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Web UI for siri-c4d. Compiled to dist/ and embedded in the binary at build time.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc && node scripts/copy-static.mjs",
+    "watch": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  }
+}

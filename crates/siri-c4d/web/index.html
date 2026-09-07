@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Siri Remote → Control4</title>
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<header>
+  <h1>Siri Remote → Control4</h1>
+  <span class="sub" id="hdr">connecting…</span>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Status</h2>
+    <div class="grid" id="status"></div>
+  </section>
+
+  <section class="card">
+    <h2>Control4 connection</h2>
+    <div class="grid">
+      <div><label for="c4host">Controller host</label>
+        <input id="c4host" placeholder="10.0.0.20"></div>
+      <div><label for="c4port">Port</label>
+        <input id="c4port" type="number" value="5080"></div>
+      <div><label for="c4pass">Password (if set)</label>
+        <input id="c4pass" type="password" placeholder="optional"></div>
+      <div><label for="c4room">Default room (id or name)</label>
+        <input id="c4room" placeholder="blank if only one room"></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button data-action="save">Save</button>
+      <button class="ghost" data-action="c4-health">Test connection</button>
+      <button class="ghost" data-action="c4-rooms">List rooms</button>
+      <span id="c4msg" class="sub"></span>
+    </div>
+    <p class="note">Points at the <strong>Room Control Webhook</strong> root driver. Leave the room
+      blank when only one room child driver is linked — the driver infers it.</p>
+  </section>
+
+  <section class="card">
+    <h2>Pair a remote</h2>
+    <div class="row">
+      <button id="scanBtn" data-action="scan">Scan for remotes</button>
+      <span id="scanmsg" class="sub"></span>
+    </div>
+    <p class="note">A Siri Remote only advertises for a second or two after a button press.
+      Press a button while the scan runs — or hold <strong>Menu + Volume Up</strong> for about
+      five seconds to force it into pairing mode.</p>
+    <table id="found" hidden>
+      <thead><tr><th>Address</th><th>Name</th><th>Signal</th><th>Type</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Remotes</h2>
+    <div id="remotes"></div>
+    <p class="note" id="noremotes">None paired yet.</p>
+  </section>
+
+  <section class="card">
+    <h2>Voice</h2>
+    <div class="grid">
+      <div><label for="audiodir">Recordings directory</label><input id="audiodir"></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <label class="inline"><input type="checkbox" id="voiceon"> Capture microphone</label>
+      <label class="inline"><input type="checkbox" id="keepwav"> Save recordings</label>
+      <button data-action="save">Save</button>
+    </div>
+    <p class="note">Holding <strong>Siri</strong> records 16&nbsp;kHz mono audio and writes a WAV
+      here. Speech recognition is intentionally not part of this project — point your own at these
+      files, or use <code>siri-events --pcm-fifo</code> for a live PCM stream while the button is
+      held. Requires a Bluetooth 4.2+ adapter; the remote refuses a large enough MTU otherwise.</p>
+  </section>
+
+  <section class="card">
+    <h2>Live events</h2>
+    <div class="row" style="margin-bottom:10px">
+      <button class="ghost" data-action="clear-log">Clear</button>
+      <span class="sub">Press buttons on a paired remote to confirm it reaches the right room.</span>
+    </div>
+    <div class="log" id="log"></div>
+  </section>
+</main>
+
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>
