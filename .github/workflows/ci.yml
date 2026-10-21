@@ -41,14 +41,4 @@ jobs:
       - run: cargo build --release -p siri-c4d
       - run: cargo test --workspace
 
-  driver:
-    name: control4 .c4z package
-    runs-on: ubuntu-latest
-    if: ${{ hashFiles('driver/build.sh') != '' }}
-    steps:
-      - uses: actions/checkout@v4
-      - run: bash driver/build.sh
-      - uses: actions/upload-artifact@v4
-        with:
-          name: control4-driver
-          path: driver/*.c4z
+  # The control4 .c4z package job is added in Phase 3 with driver/build.sh.
