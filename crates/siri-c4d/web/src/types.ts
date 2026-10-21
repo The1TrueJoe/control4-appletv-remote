@@ -37,9 +37,16 @@ export interface VoiceConfig {
   keep_recordings: boolean;
 }
 
+/** `config::Bluetooth` */
+export interface BluetoothConfig {
+  /** Adapter by BD address or kernel name (`hci1`); empty = BlueZ default. */
+  adapter: string;
+}
+
 /** `config::Config` */
 export interface Config {
   web: { bind: string; port: number };
+  bluetooth: BluetoothConfig;
   control4: Control4Config;
   voice: VoiceConfig;
   remotes: Remote[];
