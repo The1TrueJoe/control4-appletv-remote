@@ -31,3 +31,5 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 clap = { version = "4", features = ["derive"] }
 anyhow = "1"
+# Advertise the bridge over mDNS so the Control4 driver can discover it.
+mdns-sd = "0.13"

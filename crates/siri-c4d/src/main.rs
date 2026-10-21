@@ -5,6 +5,7 @@
 
 mod config;
 mod control4;
+mod discovery;
 mod supervisor;
 mod voice;
 mod web;
@@ -116,6 +117,16 @@ async fn main() -> Result<()> {
     };
 
     supervisor::reconcile(&state).await;
+
+    // Advertise over mDNS so the Control4 driver can discover this bridge.
+    // Kept alive for the process lifetime; a failure here is non-fatal.
+    let _mdns = match discovery::advertise(&cfg) {
+        Ok(d) => Some(d),
+        Err(e) => {
+            info!("mDNS advertising unavailable: {e}");
+            None
+        }
+    };
 
     let addr: SocketAddr = format!("{}:{}", cfg.web.bind, cfg.web.port)
         .parse()
