@@ -126,6 +126,10 @@ async fn worker(state: AppState, address: String, status: Arc<RwLock<RemoteStatu
             siri_remote::att::BDADDR_LE_PUBLIC
         };
         scfg.connect_timeout = Duration::from_secs(900);
+        let chosen = cfg.bluetooth.adapter.trim();
+        if !chosen.is_empty() {
+            scfg.adapter = Some(chosen.to_string());
+        }
 
         // The ATT socket is blocking, so it lives on its own thread.
         let blocking = tokio::task::spawn_blocking(move || {
@@ -172,7 +176,7 @@ async fn handle_events(
                     let mut s = status.write().await;
                     s.connected = true;
                     s.mtu = mtu;
-                    s.audio_available = mtu >= protocol::MIN_MTU;
+                    s.audio_available = kernel_rcv_mtu >= protocol::MIN_MTU;
                     s.last_error = None;
                 }
                 info!(%address, mtu, kernel_rcv_mtu, "connected");
@@ -183,7 +187,7 @@ async fn handle_events(
                 );
             }
             Event::AudioUnavailable { mtu, needed } => {
-                warn!(%address, mtu, needed, "MTU too small for microphone audio");
+                warn!(%address, mtu, needed, "kernel socket too small for microphone frames");
                 state.emit(
                     "audio_unavailable",
                     &address,
@@ -226,6 +230,7 @@ async fn handle_events(
                 pcm,
                 frames,
                 undecodable,
+                concealed,
                 held,
             } => {
                 let secs = pcm.len() as f32 / protocol::AUDIO_SAMPLE_RATE as f32;
@@ -235,6 +240,7 @@ async fn handle_events(
                     json!({
                         "frames": frames,
                         "undecodable": undecodable,
+                        "concealed": concealed,
                         "seconds": secs,
                         "held_ms": held.as_millis() as u64,
                     }),

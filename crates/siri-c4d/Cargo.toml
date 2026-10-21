@@ -13,7 +13,7 @@ name = "siri-c4d"
 path = "src/main.rs"
 
 [dependencies]
-siri-remote = { path = "../siri-remote", features = ["opus", "bluez"] }
+siri-remote = { git = "https://github.com/The1TrueJoe/siri-remote", tag = "v0.2.0", features = ["opus", "speex", "bluez"] }
 
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "signal", "process", "fs"] }
 axum = { version = "0.8", features = ["json"] }

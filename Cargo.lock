@@ -1248,19 +1248,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "siri-events"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "serde_json",
- "siri-remote",
- "tokio",
-]
-
-[[package]]
 name = "siri-remote"
-version = "0.1.0"
+version = "0.2.0"
+source = "git+https://github.com/The1TrueJoe/siri-remote?tag=v0.2.0#e39ede5cb43ef21079a443ee369e4aa3c16f6587"
 dependencies = [
  "bluer",
  "futures-util",

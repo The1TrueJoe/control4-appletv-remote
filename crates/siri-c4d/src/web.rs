@@ -35,6 +35,7 @@ pub fn router(state: AppState) -> Router {
         .route("/api/status", get(status))
         .route("/api/config", get(get_config).put(put_config))
         .route("/api/commands", get(known_commands))
+        .route("/api/adapters", get(adapters))
         .route("/api/scan", post(scan))
         .route("/api/remotes", post(add_remote))
         .route("/api/remotes/{address}", delete(remove_remote))
@@ -89,7 +90,9 @@ async fn status(State(s): St) -> Json<Value> {
             "status": st,
         }));
     }
-    let adapter = bluez::info().await.ok();
+    let chosen = cfg.bluetooth.adapter.trim();
+    let want = (!chosen.is_empty()).then_some(chosen);
+    let adapter = bluez::info(want).await.ok();
     Json(json!({
         "remotes": remotes,
         "adapter": adapter,
@@ -98,6 +101,7 @@ async fn status(State(s): St) -> Json<Value> {
             "port": cfg.control4.port,
             "configured": !cfg.control4.host.trim().is_empty(),
         },
+        "bluetooth": { "adapter": cfg.bluetooth.adapter },
         "voice": {
             "enabled": cfg.voice.enabled,
             "keep_recordings": cfg.voice.keep_recordings,
@@ -151,6 +155,12 @@ async fn known_commands() -> Json<Value> {
     }))
 }
 
+/// Every adapter present, so the UI can offer a choice rather than guessing.
+async fn adapters() -> Result<Json<Value>, (StatusCode, Json<Value>)> {
+    let found = bluez::adapters().await.map_err(err)?;
+    Ok(Json(json!({ "adapters": found })))
+}
+
 #[derive(Deserialize)]
 struct ScanReq {
     #[serde(default = "default_scan_secs")]
@@ -161,9 +171,22 @@ fn default_scan_secs() -> u64 {
     20
 }
 
-async fn scan(Json(req): Json<ScanReq>) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let found = bluez::scan(req.seconds.clamp(5, 120)).await.map_err(err)?;
+async fn scan(
+    State(s): St,
+    Json(req): Json<ScanReq>,
+) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
+    let want = chosen_adapter(&s).await;
+    let found = bluez::scan(req.seconds.clamp(5, 120), want.as_deref())
+        .await
+        .map_err(err)?;
     Ok(Json(json!({ "devices": found })))
+}
+
+/// The configured adapter, or `None` to let BlueZ decide.
+async fn chosen_adapter(s: &AppState) -> Option<String> {
+    let cfg = s.config.read().await;
+    let a = cfg.bluetooth.adapter.trim();
+    (!a.is_empty()).then(|| a.to_string())
 }
 
 #[derive(Deserialize)]
@@ -180,7 +203,10 @@ async fn add_remote(
     State(s): St,
     Json(req): Json<AddRemote>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let addr_type = bluez::pair(&req.address).await.map_err(err)?;
+    let want = chosen_adapter(&s).await;
+    let addr_type = bluez::pair(&req.address, want.as_deref())
+        .await
+        .map_err(err)?;
     info!(address = %req.address, %addr_type, "paired");
 
     {
@@ -228,7 +254,8 @@ async fn remove_remote(
             .retain(|r| !r.address.eq_ignore_ascii_case(&address));
         cfg.save(&s.config_path).map_err(err)?;
     }
-    let _ = bluez::remove(&address).await;
+    let want = chosen_adapter(&s).await;
+    let _ = bluez::remove(&address, want.as_deref()).await;
     supervisor::reconcile(&s).await;
     Ok(Json(json!({ "ok": true })))
 }

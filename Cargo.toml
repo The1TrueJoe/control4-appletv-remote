@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/siri-remote", "crates/siri-events", "crates/siri-c4d"]
+members = ["crates/siri-c4d"]
 
 [workspace.package]
 version = "0.1.0"
@@ -14,3 +14,9 @@ lto = true
 codegen-units = 1
 strip = true
 panic = "abort"
+
+# To work on the library and the bridge together, check out siri-remote next
+# to this repo and uncomment this; Cargo then builds the local copy instead of
+# the pinned tag.
+# [patch."https://github.com/The1TrueJoe/siri-remote"]
+# siri-remote = { path = "../siri-remote/crates/siri-remote" }

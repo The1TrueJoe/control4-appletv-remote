@@ -60,6 +60,8 @@ enum Command {
     ShowConfig,
     /// Check that the Control4 driver is reachable.
     Check,
+    /// List Bluetooth adapters.
+    Adapters,
 }
 
 #[tokio::main]
@@ -82,10 +84,14 @@ async fn main() -> Result<()> {
     }
 
     match cli.command {
-        Some(Command::Scan { seconds }) => return cmd_scan(seconds).await,
+        Some(Command::Scan { seconds }) => {
+            let a = cfg.bluetooth.adapter.trim().to_string();
+            return cmd_scan(seconds, (!a.is_empty()).then_some(a.as_str())).await;
+        }
         Some(Command::Pair { address, name, room }) => {
             return cmd_pair(&cli.config, cfg, address, name, room).await
         }
+        Some(Command::Adapters) => return cmd_adapters().await,
         Some(Command::ShowConfig) => {
             println!("{}", toml::to_string_pretty(&cfg)?);
             return Ok(());
@@ -146,9 +152,9 @@ async fn shutdown() {
     info!("shutting down");
 }
 
-async fn cmd_scan(seconds: u64) -> Result<()> {
+async fn cmd_scan(seconds: u64, adapter: Option<&str>) -> Result<()> {
     println!("scanning {seconds}s -- press a button on the remote, or hold Menu+Volume Up\n");
-    let found = siri_remote::bluez::scan(seconds).await?;
+    let found = siri_remote::bluez::scan(seconds, adapter).await?;
     if found.is_empty() {
         println!("nothing found. The remote only advertises briefly after a button press.");
         return Ok(());
@@ -168,6 +174,18 @@ async fn cmd_scan(seconds: u64) -> Result<()> {
     Ok(())
 }
 
+async fn cmd_adapters() -> Result<()> {
+    for a in siri_remote::bluez::adapters().await? {
+        println!(
+            "{:<8} {:<20} powered={} discovering={}",
+            a.name, a.address, a.powered, a.discovering
+        );
+    }
+    println!("\nMicrophone audio needs a Bluetooth 4.2+ adapter.");
+    println!("Set it under [bluetooth] adapter in the config, or in the web UI.");
+    Ok(())
+}
+
 async fn cmd_pair(
     path: &PathBuf,
     mut cfg: Config,
@@ -175,7 +193,9 @@ async fn cmd_pair(
     name: String,
     room: String,
 ) -> Result<()> {
-    let addr_type = siri_remote::bluez::pair(&address).await?;
+    let chosen = cfg.bluetooth.adapter.trim().to_string();
+    let addr_type =
+        siri_remote::bluez::pair(&address, (!chosen.is_empty()).then_some(chosen.as_str())).await?;
     let address = address.to_uppercase();
     if let Some(r) = cfg
         .remotes

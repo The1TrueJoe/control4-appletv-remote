@@ -42,7 +42,7 @@ say "Installing runtime dependencies"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq --no-install-recommends \
-  bluez libopus0 libdbus-1-3 ca-certificates >/dev/null
+  bluez libopus0 libspeex1 libdbus-1-3 ca-certificates >/dev/null
 
 here=$(cd "$(dirname "$0")/.." && pwd)
 
@@ -58,15 +58,17 @@ elif [ "$BUILD" = 1 ]; then
   say "Building from source"
   warn "On a Pi 3 this is slow and wants ~1GB of swap; cross-building is faster."
   apt-get install -y -qq --no-install-recommends \
-    build-essential pkg-config libdbus-1-dev libopus-dev curl >/dev/null
+    build-essential pkg-config libdbus-1-dev libopus-dev libspeex-dev curl >/dev/null
   if ! command -v cargo >/dev/null; then
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
     # shellcheck disable=SC1091
     . "$HOME/.cargo/env"
   fi
   ( cd "$here" && cargo build --release )
-  install -Dm755 "$here/target/release/siri-events" "$PREFIX/bin/siri-events"
   install -Dm755 "$here/target/release/siri-c4d"    "$PREFIX/bin/siri-c4d"
+  # siri-events lives in the siri-remote repo; build the same tag siri-c4d pins.
+  cargo install --locked --root "$PREFIX" \
+    --git https://github.com/The1TrueJoe/siri-remote --tag v0.2.0 siri-events
 elif [ -d "$here/dist" ]; then
   say "Installing bundled binaries"
   for b in siri-events siri-c4d; do

@@ -4,7 +4,7 @@ FROM rust:slim
 # Node is needed to compile the TypeScript web UI; the Rust build invokes it
 # through crates/siri-c4d/build.rs.
 RUN apt-get update -qq && apt-get install -y -qq --no-install-recommends \
-      libdbus-1-dev libopus-dev pkg-config ca-certificates curl gnupg \
+      libdbus-1-dev libopus-dev libspeex-dev pkg-config ca-certificates curl gnupg \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y -qq --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*

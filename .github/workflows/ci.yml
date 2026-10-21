@@ -1,0 +1,54 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  web:
+    name: web UI typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - working-directory: crates/siri-c4d/web
+        run: |
+          npm ci
+          npm run typecheck
+          npm run build
+
+  daemon:
+    name: siri-c4d (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: System libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libdbus-1-dev libopus-dev libspeex-dev
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release -p siri-c4d
+      - run: cargo test --workspace
+
+  driver:
+    name: control4 .c4z package
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('driver/build.sh') != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash driver/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: control4-driver
+          path: driver/*.c4z

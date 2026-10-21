@@ -15,6 +15,7 @@ pub const DEFAULT_PATH: &str = "/etc/siri-c4d/config.toml";
 #[serde(default)]
 pub struct Config {
     pub web: Web,
+    pub bluetooth: Bluetooth,
     pub control4: Control4,
     pub voice: Voice,
     pub remotes: Vec<Remote>,
@@ -24,6 +25,7 @@ impl Default for Config {
     fn default() -> Self {
         Config {
             web: Web::default(),
+            bluetooth: Bluetooth::default(),
             control4: Control4::default(),
             voice: Voice::default(),
             remotes: Vec::new(),
@@ -44,6 +46,24 @@ impl Default for Web {
             bind: "0.0.0.0".into(),
             port: 8752,
         }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Bluetooth {
+    /// Adapter to use, by BD address or kernel name (`hci1`). Empty means
+    /// BlueZ's default.
+    ///
+    /// Naming one matters when a USB dongle sits alongside a built-in radio:
+    /// microphone audio needs a Bluetooth 4.2+ controller, and a Raspberry
+    /// Pi 3's built-in radio is 4.1 and will never carry it.
+    pub adapter: String,
+}
+
+impl Default for Bluetooth {
+    fn default() -> Self {
+        Bluetooth { adapter: String::new() }
     }
 }
 
@@ -222,6 +242,11 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn adapter_defaults_to_automatic() {
+        assert!(Config::default().bluetooth.adapter.is_empty());
+    }
 
     #[test]
     fn defaults_round_trip_through_toml() {
