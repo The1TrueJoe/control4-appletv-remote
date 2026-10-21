@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Original line-art of a touch remote (NOT Apple's product asset). Safe to
+     ship/distribute. Rasterize to device_sm.png (32x32) and device_lg.png
+     (128x128) via build.sh. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="20" fill="#0b0b0f"/>
+  <!-- remote body -->
+  <rect x="44" y="18" width="40" height="92" rx="14" fill="#1c1c22" stroke="#3a3a44" stroke-width="2"/>
+  <!-- touch surface -->
+  <rect x="50" y="26" width="28" height="30" rx="8" fill="#2d2d36" stroke="#55555f" stroke-width="1.5"/>
+  <!-- menu / select buttons -->
+  <circle cx="64" cy="70" r="5" fill="#44444e"/>
+  <circle cx="54" cy="84" r="4" fill="#3a3a44"/>
+  <circle cx="74" cy="84" r="4" fill="#3a3a44"/>
+  <!-- volume -->
+  <rect x="59" y="94" width="10" height="10" rx="3" fill="#3a3a44"/>
+  <line x1="64" y1="96.5" x2="64" y2="101.5" stroke="#9a9aa6" stroke-width="1.5"/>
+  <line x1="61.5" y1="99" x2="66.5" y2="99" stroke="#9a9aa6" stroke-width="1.5"/>
+</svg>

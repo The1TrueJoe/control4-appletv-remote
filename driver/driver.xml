@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<devicedata>
+  <copyright>Copyright 2026</copyright>
+  <manufacturer>Apple</manufacturer>
+  <name>Apple TV Siri Remote Bridge</name>
+  <model>appletv-remote-bridge</model>
+  <creator>control4-appletv-remote</creator>
+  <created>2026-10-21</created>
+  <modified>2026-10-21</modified>
+  <version>1</version>
+  <small>icons/device_sm.png</small>
+  <large>icons/device_lg.png</large>
+  <control>lua_gen</control>
+  <controlmethod>ip</controlmethod>
+  <driver>DriverWorks</driver>
+  <combo>false</combo>
+
+  <config>
+    <documentation file="README.md"/>
+    <script file="driver.lua"/>
+
+    <properties>
+      <property>
+        <name>Driver Version</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default>1.0.0</default>
+      </property>
+      <property>
+        <name>Bridge IP Address</name>
+        <type>STRING</type>
+        <readonly>false</readonly>
+        <default></default>
+      </property>
+      <property>
+        <name>Bridge Name</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default></default>
+      </property>
+      <property>
+        <name>Connection Status</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default>Unknown</default>
+      </property>
+      <!-- TCP port this driver listens on for commands POSTed by the bridge
+           (the bridge's forwarder "driver" target). -->
+      <property>
+        <name>Listen Port</name>
+        <type>RANGED_INTEGER</type>
+        <minimum>1024</minimum>
+        <maximum>65535</maximum>
+        <default>5090</default>
+        <readonly>false</readonly>
+      </property>
+      <!-- Optional shared secret; if set, the bridge must send it as
+           Authorization: Bearer / X-API-Key / password=. -->
+      <property>
+        <name>Password</name>
+        <type>STRING</type>
+        <password>true</password>
+        <readonly>false</readonly>
+        <default></default>
+      </property>
+      <property>
+        <name>Discovered Bridges</name>
+        <type>LIST</type>
+        <items></items>
+        <readonly>false</readonly>
+      </property>
+      <property>
+        <name>Debug Mode</name>
+        <type>LIST</type>
+        <items>
+          <item>Off</item>
+          <item>On</item>
+        </items>
+        <default>Off</default>
+        <readonly>false</readonly>
+      </property>
+    </properties>
+
+    <actions>
+      <action>
+        <name>Discover Bridges</name>
+        <command>DiscoverBridges</command>
+      </action>
+      <action>
+        <name>Use Selected Bridge</name>
+        <command>UseSelectedBridge</command>
+      </action>
+    </actions>
+
+    <!-- Room commands this driver can forward (the Control4 room command
+         vocabulary; the bridge POSTs these names). Also invokable from
+         Composer programming. -->
+    <commands>
+      <command><name>PLAYPAUSE</name></command>
+      <command><name>PLAY</name></command>
+      <command><name>PAUSE</name></command>
+      <command><name>STOP</name></command>
+      <command><name>SKIP_FWD</name></command>
+      <command><name>SKIP_REV</name></command>
+      <command><name>UP</name></command>
+      <command><name>DOWN</name></command>
+      <command><name>LEFT</name></command>
+      <command><name>RIGHT</name></command>
+      <command><name>ENTER</name></command>
+      <command><name>BACK</name></command>
+      <command><name>MENU</name></command>
+      <command><name>GUIDE</name></command>
+      <command><name>INFO</name></command>
+      <command><name>START_VOL_UP</name></command>
+      <command><name>STOP_VOL_UP</name></command>
+      <command><name>START_VOL_DOWN</name></command>
+      <command><name>STOP_VOL_DOWN</name></command>
+      <command><name>MUTE_TOGGLE</name></command>
+      <command><name>ROOM_OFF</name></command>
+      <command><name>POWER</name></command>
+    </commands>
+  </config>
+
+  <!-- Room-control bindings: bind one or more to a Room. Commands are sent to
+       the bound room's device via C4:SendToDevice. facing=6 type=1 mirrors the
+       Room Control Webhook suite's proven room links. -->
+  <connections>
+    <connection><id>101</id><facing>6</facing><connectionname>Room 1</connectionname><type>1</type><consumer>False</consumer><audiosource>False</audiosource><videosource>False</videosource><linelevel>False</linelevel><classes><class><classname>APPLETV_REMOTE_ROOM</classname></class></classes></connection>
+    <connection><id>102</id><facing>6</facing><connectionname>Room 2</connectionname><type>1</type><consumer>False</consumer><audiosource>False</audiosource><videosource>False</videosource><linelevel>False</linelevel><classes><class><classname>APPLETV_REMOTE_ROOM</classname></class></classes></connection>
+    <connection><id>103</id><facing>6</facing><connectionname>Room 3</connectionname><type>1</type><consumer>False</consumer><audiosource>False</audiosource><videosource>False</videosource><linelevel>False</linelevel><classes><class><classname>APPLETV_REMOTE_ROOM</classname></class></classes></connection>
+    <connection><id>104</id><facing>6</facing><connectionname>Room 4</connectionname><type>1</type><consumer>False</consumer><audiosource>False</audiosource><videosource>False</videosource><linelevel>False</linelevel><classes><class><classname>APPLETV_REMOTE_ROOM</classname></class></classes></connection>
+  </connections>
+
+  <events>
+    <event><id>1</id><name>Bridge Discovered</name></event>
+    <event><id>2</id><name>Bridge Online</name></event>
+    <event><id>3</id><name>Bridge Offline</name></event>
+  </events>
+</devicedata>

@@ -41,4 +41,18 @@ jobs:
       - run: cargo build --release -p siri-c4d
       - run: cargo test --workspace
 
-  # The control4 .c4z package job is added in Phase 3 with driver/build.sh.
+  driver:
+    name: control4 .c4z package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint Lua
+        run: |
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends lua5.3
+          for f in driver/*.lua; do luac5.3 -p "$f"; done
+      - name: Package .c4z
+        run: bash driver/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: control4-driver
+          path: driver/*.c4z
