@@ -1,0 +1,27 @@
+# siri-c4d — configure the rest from the web UI (http://<pi>:8752).
+
+# Remotes are added by pairing from the web UI, which appends [[remotes]]
+# tables here. This must stay above every table: a bare key after a table
+# header would be parsed as belonging to that table.
+remotes = []
+
+[web]
+bind = "0.0.0.0"
+port = 8752
+
+[bluetooth]
+# Adapter by BD address or kernel name (hci1); empty = BlueZ default.
+adapter = ""
+
+[control4]
+# Address of the Control4 target (native driver or Room Control Webhook root).
+host = ""
+port = 5080
+password = ""
+room = ""
+timeout_ms = 2500
+
+[voice]
+enabled = true
+audio_dir = "/var/lib/siri-c4d/audio"
+keep_recordings = true

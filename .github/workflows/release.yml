@@ -1,0 +1,122 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  daemon:
+    name: siri-c4d aarch64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - name: Build aarch64 builder image
+        run: docker build --platform linux/arm64 -t siri-build -f scripts/Dockerfile.build scripts/
+      - name: Cross-build siri-c4d (release)
+        run: |
+          docker run --rm --platform linux/arm64 -v "$PWD":/w -w /w siri-build \
+            cargo build --release -p siri-c4d
+          mkdir -p dist
+          cp target/release/siri-c4d dist/siri-c4d-aarch64
+      - name: Cross-build siri-events (from siri-remote tag)
+        continue-on-error: true
+        run: |
+          docker run --rm --platform linux/arm64 -v "$PWD":/w -w /w siri-build \
+            bash -lc 'cargo install --locked --root /w/.se \
+              --git https://github.com/The1TrueJoe/siri-remote --tag v0.2.0 siri-events'
+          cp .se/bin/siri-events dist/siri-events-aarch64 || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: daemon
+          path: dist/*
+
+  driver:
+    name: control4 .c4z
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package driver (if present)
+        run: |
+          if [ -f driver/build.sh ]; then
+            ( cd driver && bash build.sh )
+          else
+            echo "driver/ not present yet; skipping"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: driver
+          path: driver/*.c4z
+          if-no-files-found: ignore
+
+  firmware:
+    name: esp firmware (zephyr)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    container: zephyrprojectrtos/ci:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: west build (if firmware present)
+        run: |
+          if [ ! -d firmware ]; then echo "firmware/ not present yet; skipping"; exit 0; fi
+          cd firmware
+          west init -l . || true
+          west update || true
+          mkdir -p ../fw-out
+          for b in esp32s3_devkitm/esp32s3/procpu xiao_esp32s3/esp32s3/procpu; do
+            name=$(echo "$b" | tr '/' '_')
+            west build -p always -b "$b" . -d "build-$name" || continue
+            cp "build-$name/zephyr/zephyr.bin" "../fw-out/siri-bridge-$name.bin" || true
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: fw-out/*
+          if-no-files-found: ignore
+
+  image:
+    name: raspberry pi image
+    runs-on: ubuntu-latest
+    needs: [daemon]
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: daemon
+          path: dist
+      - name: Bake image (pi-gen, best-effort)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+          bash images/build.sh --bin-dir dist --img-name siri-c4d
+          mkdir -p img-out
+          find images/.pi-gen/deploy -maxdepth 1 -type f \
+            \( -name '*.img.xz' -o -name '*.zip' \) -exec cp {} img-out/ \; || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: image
+          path: img-out/*
+          if-no-files-found: ignore
+
+  publish:
+    name: publish release
+    runs-on: ubuntu-latest
+    needs: [daemon, driver, firmware, image]
+    if: always()
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Flatten
+        run: |
+          mkdir -p out
+          find artifacts -type f -exec cp {} out/ \;
+          ls -l out
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: out/*
+          generate_release_notes: true

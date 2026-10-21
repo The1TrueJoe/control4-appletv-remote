@@ -1,0 +1,32 @@
+# Headless first-boot provisioning for Raspberry Pi OS (Bookworm+).
+#
+# Copy to the FAT boot partition of a flashed card as `custom.toml` (i.e.
+# /boot/firmware/custom.toml) and edit. On first boot the Pi joins WiFi, sets
+# its hostname, enables SSH, and creates the user — no monitor needed.
+# (Raspberry Pi Imager's "edit settings" writes this same file for you.)
+
+config_version = 1
+
+[system]
+hostname = "siri-c4d"
+
+[user]
+name = "pi"
+# Generate with:  echo 'yourpassword' | openssl passwd -6 -stdin
+password = "$6$REPLACE_WITH_A_HASH"
+password_encrypted = true
+
+[ssh]
+enabled = true
+password_authentication = true
+
+[wlan]
+ssid = "YOUR_WIFI_SSID"
+password = "YOUR_WIFI_PASSWORD"
+password_encrypted = false
+hidden = false
+country = "US"
+
+[locale]
+keymap = "us"
+timezone = "Etc/UTC"

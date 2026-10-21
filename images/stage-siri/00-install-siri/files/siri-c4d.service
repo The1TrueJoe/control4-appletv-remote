@@ -1,0 +1,24 @@
+[Unit]
+Description=Siri Remote to Control4 bridge
+Documentation=https://github.com/The1TrueJoe/control4-appletv-remote
+After=bluetooth.service network-online.target
+Wants=network-online.target
+Requires=bluetooth.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/siri-c4d --config /etc/siri-c4d/config.toml
+Restart=always
+RestartSec=5
+# Raw L2CAP sockets and BlueZ pairing both need these.
+AmbientCapabilities=CAP_NET_RAW CAP_NET_ADMIN
+CapabilityBoundingSet=CAP_NET_RAW CAP_NET_ADMIN
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/etc/siri-c4d /var/lib/siri-c4d
+StateDirectory=siri-c4d
+
+[Install]
+WantedBy=multi-user.target

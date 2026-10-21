@@ -1,0 +1,29 @@
+# pi-gen config for the Siri Remote → Control4 bridge image.
+#
+# One arm64 Raspberry Pi OS Lite image boots on Pi 3, 4 and 5 (the 64-bit RPi
+# OS is universal across them), so there is a single image rather than one per
+# model; `build.sh` only varies IMG_NAME for release naming.
+#
+# Sourced by pi-gen as its `config` file. See images/README.md.
+
+IMG_NAME="${IMG_NAME:-siri-c4d}"
+RELEASE="${RELEASE:-bookworm}"
+# arm64 Lite. pi-gen builds Lite when stage list stops at stage2.
+ARCH=arm64
+STAGE_LIST="${STAGE_LIST:-stage0 stage1 stage2 stage-siri}"
+
+# Headless-friendly defaults. WiFi/hostname are normally set at flash time with
+# Raspberry Pi Imager (its customization works on this standard image), or via
+# the boot-overlay drop-ins (see images/boot-overlay/). These are only fallback
+# defaults and can be overridden in the environment before building.
+ENABLE_SSH="${ENABLE_SSH:-1}"
+FIRST_USER_NAME="${FIRST_USER_NAME:-pi}"
+FIRST_USER_PASS="${FIRST_USER_PASS:-}"      # empty: set at flash time (Imager)
+DISABLE_FIRST_BOOT_USER_RENAME="${DISABLE_FIRST_BOOT_USER_RENAME:-0}"
+LOCALE_DEFAULT="${LOCALE_DEFAULT:-en_US.UTF-8}"
+TIMEZONE_DEFAULT="${TIMEZONE_DEFAULT:-Etc/UTC}"
+TARGET_HOSTNAME="${TARGET_HOSTNAME:-siri-c4d}"
+
+# Optional WiFi baked in (leave empty to set WiFi at flash time instead):
+# WPA_ESSID, WPA_PASSWORD, WPA_COUNTRY
+WPA_COUNTRY="${WPA_COUNTRY:-US}"

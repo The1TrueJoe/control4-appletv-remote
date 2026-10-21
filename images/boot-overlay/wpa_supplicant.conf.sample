@@ -1,0 +1,12 @@
+# Alternative headless WiFi for older Raspberry Pi OS (pre-Bookworm) or if you
+# prefer not to use custom.toml. Copy to the boot partition as
+# `wpa_supplicant.conf`; it is moved into place on first boot. Also drop an
+# empty file named `ssh` on the boot partition to enable SSH.
+country=US
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+    ssid="YOUR_WIFI_SSID"
+    psk="YOUR_WIFI_PASSWORD"
+}
