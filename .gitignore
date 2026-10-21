@@ -24,3 +24,6 @@ driver/*.c4z
 
 # Zephyr firmware build output
 firmware/build/
+
+# raw proprietary symbol dumps — kept local, not published
+docs/c4-voice-path/*.strings
