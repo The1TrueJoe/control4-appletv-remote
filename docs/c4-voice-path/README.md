@@ -2,7 +2,7 @@
 
 How a Control4 EA controller takes microphone audio from a remote and gets it
 to a target device (Apple TV, cable box, etc.). Pulled from a stock EA-1 on OS
-`3.3.3.660628-res` (Front-Garage-EA1, 192.168.1.139), 2026-10-20.
+`3.3.3.660628-res` (192.0.2.10), 2026-10-20.
 
 ## The players
 
@@ -31,7 +31,7 @@ help text, verbatim):
 // Start a service instance in its own process.
 // voice_target_config is "<id>@<ip>:<port>" — the TARGET audio is pushed to.
 {"method":"start","args":{"name":"apple1","service":"apple",
-  "voice_target_config":"1@192.168.1.145:9201","data":{}}}
+  "voice_target_config":"1@192.0.2.40:9201","data":{}}}
 
 {"method":"status","args":{}}
 {"method":"stop","args":{"name":"comcast1"}}
@@ -134,7 +134,7 @@ unit.
 
 ## The cleaner injection point: `appled` on tcp 9200
 
-Observed live (read-only) on Front-Garage-EA1: `appled` runs continuously and
+Observed live (read-only) on an accessory EA-1: `appled` runs continuously and
 **listens on tcp 9200**, while **no `voice_apple` process exists** until a
 Siri press spins one up. So the stable, always-present piece is `appled` — it
 holds the HomeKit pairing to the Apple TV and waits on :9200. `voice_apple` is
@@ -184,7 +184,7 @@ drive the paired Apple TV — not harmless probing. Several sub-schemas
 unknown, and there is no native C4 voice remote in this house to capture a
 reference from, so finishing this means experimenting against a live `appled`.
 Do it only on a controller whose Apple TV is expendable for testing, never on
-Director (Living-room EA-1).
+Director (the Director controller).
 
 `c4vc_push.py` here implements the c4vc binary half (handshake + Opus + finish);
 it is correct but cannot be used until the `:9200` setup above opens port P.
@@ -194,7 +194,7 @@ the bring-up can be run deliberately with each reply visible.
 
 ### Live-controller facts to finish this (gating a bring-up)
 
-- **Never send `provision`/`bridge` to the garage appled.** It is already
+- **Never send `provision`/`bridge` to a non-Director controller appled.** It is already
   provisioned, bridged and paired to its Apple TV; those are first-time-setup
   commands (`provision` resets appled's HAP identity/token, `cmdProvision`
   `0x080c7010`) and can disturb the existing pairing. Live bring-up uses only
@@ -255,8 +255,8 @@ field names, and `appled`'s accept/reject reply ("c4vc handshake was accepted
 for c4vc stream"). All recoverable from the same two binaries.
 
 Final verification needs a live `appled:9200` on a **non-Director** controller
-(Front- or Rear-Garage EA-1) with its paired Apple TV visible, to confirm Siri
-actually triggers. Director (Living-room EA-1, 192.168.1.172) is read-only —
+(any non-Director controller) with its paired Apple TV visible, to confirm Siri
+actually triggers. Director (the Director controller) is read-only —
 never interrupt it.
 
 ## Open questions

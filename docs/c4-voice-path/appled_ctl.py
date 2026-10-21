@@ -10,14 +10,14 @@ and can disturb the existing HAP identity/pairing. On a live, working appled use
 only: status, remote, activate, button, and the cleanup inverse.
 
 Examples:
-  appled_ctl.py 192.168.1.139 status
-  appled_ctl.py 192.168.1.139 remote   --id 7 --data '{"active":true,"available":true,"bridged":true,"voice":true}'
-  appled_ctl.py 192.168.1.139 activate --identifier 7 --timeout 15000
-  appled_ctl.py 192.168.1.139 button   --button 1 --state down --timestamp now
-  appled_ctl.py 192.168.1.139 button   --button 1 --state up   --timestamp now
-  appled_ctl.py 192.168.1.139 activate --identifier 7 --timeout 0      # deactivate
-  appled_ctl.py 192.168.1.139 remote   --id 7 --data '{"active":false,"available":false,"bridged":false,"voice":false}'  # cleanup
-  appled_ctl.py 192.168.1.139 raw --json '{"method":"status","args":{}}'
+  appled_ctl.py 192.0.2.10 status
+  appled_ctl.py 192.0.2.10 remote   --id 7 --data '{"active":true,"available":true,"bridged":true,"voice":true}'
+  appled_ctl.py 192.0.2.10 activate --identifier 7 --timeout 15000
+  appled_ctl.py 192.0.2.10 button   --button 1 --state down --timestamp now
+  appled_ctl.py 192.0.2.10 button   --button 1 --state up   --timestamp now
+  appled_ctl.py 192.0.2.10 activate --identifier 7 --timeout 0      # deactivate
+  appled_ctl.py 192.0.2.10 remote   --id 7 --data '{"active":false,"available":false,"bridged":false,"voice":false}'  # cleanup
+  appled_ctl.py 192.0.2.10 raw --json '{"method":"status","args":{}}'
 """
 import argparse
 import json
