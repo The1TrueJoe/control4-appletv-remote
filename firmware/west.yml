@@ -1,0 +1,24 @@
+# West manifest for the ESP32 Siri Remote -> Control4 bridge firmware.
+# `west init -l firmware && west update` fetches Zephyr + the siri_remote module.
+manifest:
+  remotes:
+    - name: zephyrproject
+      url-base: https://github.com/zephyrproject-rtos
+    - name: the1truejoe
+      url-base: https://github.com/The1TrueJoe
+  projects:
+    - name: zephyr
+      remote: zephyrproject
+      revision: main           # pin to a release tag before shipping
+      import: true
+    - name: hal_espressif
+      remote: zephyrproject
+      revision: HEAD
+      path: modules/hal/espressif
+      groups: [hal]
+    - name: siri-remote
+      remote: the1truejoe
+      revision: main           # the siri_remote Zephyr module lives in zephyr/
+      path: modules/siri-remote
+  self:
+    path: application

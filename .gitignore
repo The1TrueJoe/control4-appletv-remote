@@ -21,3 +21,6 @@ docs/captures/
 
 # Control4 driver build artifact (CI builds it)
 driver/*.c4z
+
+# Zephyr firmware build output
+firmware/build/

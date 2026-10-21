@@ -1,0 +1,17 @@
+mainmenu "Siri Remote -> Control4 bridge"
+
+config SIRI_BRIDGE_TRANSCODE
+	bool "Transcode A1513 Speex -> Opus on-device"
+	default n
+	help
+	  The A1513 remote sends Speex; appled wants Opus, so the bridge must
+	  transcode. This is the heaviest task on the MCU (Opus encode, no FPU
+	  on the C6 - borderline). Enable only on an ESP32-S3 (FPU, dual core)
+	  and after benchmarking. When off, voice is relayed only for Opus-native
+	  A1962 remotes and A1513 voice is dropped with a warning.
+
+config SIRI_BRIDGE_AP_SSID
+	string "Provisioning SoftAP SSID prefix"
+	default "SiriBridge"
+
+source "Kconfig.zephyr"
